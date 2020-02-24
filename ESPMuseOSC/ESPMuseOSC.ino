@@ -14,6 +14,18 @@
 
 WiFiUDP Udp;
 
+//GPIO pin mappings on the ESP8266. Constants for convenience. 
+static const uint8_t D0   = 16;
+static const uint8_t D1   = 5;
+static const uint8_t D2   = 4;
+static const uint8_t D3   = 0;
+static const uint8_t D4   = 2;
+static const uint8_t D5   = 14;
+static const uint8_t D6   = 12;
+static const uint8_t D7   = 13;
+static const uint8_t D8   = 15;
+static const uint8_t D9   = 3;
+static const uint8_t D10  = 1;
 
 //Absolute
 float da = 0;
@@ -32,13 +44,7 @@ float gr = 0;
 
 
 void setup() {
-  //Reset LCD in case intermittent power turned it off.
-  //pinMode(LCDRESET,OUTPUT);
-  //digitalWrite(LCDRESET,LOW);
-  //delay(500);
-  //digitalWrite(LCDRESET,HIGH);
-  //delay(100);
-
+  pinMode(D2, OUTPUT);
   setupWifi();
 }
 
@@ -103,7 +109,13 @@ void loop() {
 
     }
   } 
-}
+  
+
+    analogWrite(D2, (int)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
+
+    Serial.println((String)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
+ }
+
 
 
 
@@ -135,7 +147,7 @@ void setupWifi(){
 
 
 
-float mapfloat(float x, float in_min, float in_max, float out_min, float out_max)
+float mapFloat(float x, float in_min, float in_max, float out_min, float out_max)
 {
  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
