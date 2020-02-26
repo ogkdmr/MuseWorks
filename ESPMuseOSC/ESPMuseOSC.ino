@@ -10,7 +10,6 @@
 #include <OSCMessage.h>
 #include <OSCBundle.h>
 #include <OSCData.h>
-
 #include <EasyButton.h>
 
 
@@ -43,47 +42,82 @@ float ar = 0;
 float br = 0;
 float gr = 0;
 
-float currentWave = da; 
+//LED Ports.
+int LED_DELTA = D4; //white
+int LED_THETA = D8; //blue
+int LED_ALPHA = D7; //yellow
+int LED_BETA = D6;  //red
+int LED_GAMMA = D5; //green
 
-//define the button.
+//Peltier Ports
+int PELTIER_A = D0; //active now.
+int PELTIER_B = D1; //not yet sothered.
+
+
+float currentWave = da; // default value for the motitored wave is delta.
+
+//declare the button.
 EasyButton button(D3);
 
 
 
-int idx = 0; //used for chosing the wave and the led port.
+int idx = 0; //used for chosing the wave and the led port. values: [0,4]
 
 
+//when the button is pressed, changes the wave that is monitored.
 void onPressed(){
   Serial.println("Button press detected!");
-  idx++;
+
+  turnOffLeds();
   switch(idx%5){
     case 0:
-      currentWave = da; 
+      currentWave = da;
+      digitalWrite(LED_DELTA, HIGH); 
       break;
     case 1:
       currentWave = ta;
+      digitalWrite(LED_THETA, HIGH);
       break;
     case 2:
       currentWave = aa;
+      digitalWrite(LED_ALPHA, HIGH);
       break;
     case 3:
       currentWave = ba;
+      digitalWrite(LED_BETA, HIGH);
       break;
     case 4:
       currentWave = ga;
+      digitalWrite(LED_GAMMA, HIGH);
       break;
   }
- 
+  idx++;
 }
 
+//Helper method for turning of the led that was previously lit. Used when changing waves.
+int leds[5] = {LED_DELTA, LED_THETA, LED_ALPHA,LED_BETA, LED_GAMMA};
+void turnOffLeds(){
+  for(int i=0; i<5; i++){
+    digitalWrite(leds[i], LOW);
+  }
+}
 
 void setup() {
-  pinMode(D2, OUTPUT);
+  pinMode(D2, OUTPUT); //vib motor.
+  pinMode(D4, OUTPUT); //white led, delta wave.
+  pinMode(D8, OUTPUT); //blue led, theta wave.
+  pinMode(D7, OUTPUT); //yellow led, alpha wave.
+  pinMode(D6, OUTPUT); //red led, beta wave.
+  pinMode(D5, OUTPUT); //green led, gamma wave.
+
+
   
   setupWifi();
 
   button.begin(); //start the listener for the button press.
   button.onPressed(onPressed); //set callback method to the button press.
+
+
 }
 
 
@@ -142,21 +176,14 @@ void loop() {
       bundle.dispatch("/muse/elements/beta_absolute", beta);
       bundle.dispatch("/muse/elements/gamma_absolute", gamma);
 
-      //Serial.println(br);
-      Serial.println(currentWave);
-      //Serial.println(tr);
-      //Serial.println(dr);
-      //Serial.println(gr);
+      //Serial.println(currentWave);
 
     }
   } 
   
     //this is the line that sets the vibration motor speed.
     analogWrite(D2, (int)mapFloat(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
-
-   
     
-
     //Serial.println((String)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
  }
 
@@ -164,7 +191,6 @@ void loop() {
 
 
 //Configures and initiates the UDP packet flow from the MindMonitor app to the ESP8266 chip.
-//WiFi.config(static ip for the esp8266, gateway's local ip, subnet)
 void setupWifi(){
   Serial.begin(115200);
   Serial.println("\n\nESP Booted.");
