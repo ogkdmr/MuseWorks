@@ -11,6 +11,8 @@
 #include <OSCBundle.h>
 #include <OSCData.h>
 
+#include <EasyButton.h>
+
 
 WiFiUDP Udp;
 
@@ -42,10 +44,29 @@ float br = 0;
 float gr = 0;
 
 
+//define the button.
+EasyButton button(D3);
+
+
+
+int idx = 0; //used for chosing the wave and the led port.
+float[] waves = {da, ta, aa, ba, ga}; 
+float[] pins = null; // to be filled once I have the wired the leds.
+
+void onPressed(){
+  Serial.println("Button press detected!");
+  idx++; 
+  
+}
+
 
 void setup() {
   pinMode(D2, OUTPUT);
+  
   setupWifi();
+
+  button.begin(); //start the listener for the button press.
+  button.onPressed(onPressed); //set callback method to the button press.
 }
 
 
@@ -86,6 +107,9 @@ void gamma(OSCMessage &msg) {
 }
 
 void loop() {
+
+  button.read(); //listen to the button taps.
+  
   OSCBundle bundle;
   int size = Udp.parsePacket();
 
@@ -110,10 +134,13 @@ void loop() {
     }
   } 
   
+    //this is the line that sets the vibration motor speed.
+    //analogWrite(D2, (int)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
 
-    analogWrite(D2, (int)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
+   
+    
 
-    Serial.println((String)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
+    //Serial.println((String)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
  }
 
 
@@ -144,6 +171,7 @@ void setupWifi(){
     Serial.println(Udp.localPort());
     
 }
+
 
 
 
