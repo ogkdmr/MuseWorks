@@ -43,6 +43,7 @@ float ar = 0;
 float br = 0;
 float gr = 0;
 
+float currentWave = da; 
 
 //define the button.
 EasyButton button(D3);
@@ -50,13 +51,29 @@ EasyButton button(D3);
 
 
 int idx = 0; //used for chosing the wave and the led port.
-float[] waves = {da, ta, aa, ba, ga}; 
-float[] pins = null; // to be filled once I have the wired the leds.
+
 
 void onPressed(){
   Serial.println("Button press detected!");
-  idx++; 
-  
+  idx++;
+  switch(idx%5){
+    case 0:
+      currentWave = da; 
+      break;
+    case 1:
+      currentWave = ta;
+      break;
+    case 2:
+      currentWave = aa;
+      break;
+    case 3:
+      currentWave = ba;
+      break;
+    case 4:
+      currentWave = ga;
+      break;
+  }
+ 
 }
 
 
@@ -126,7 +143,7 @@ void loop() {
       bundle.dispatch("/muse/elements/gamma_absolute", gamma);
 
       //Serial.println(br);
-      Serial.println(ar);
+      Serial.println(currentWave);
       //Serial.println(tr);
       //Serial.println(dr);
       //Serial.println(gr);
@@ -135,7 +152,7 @@ void loop() {
   } 
   
     //this is the line that sets the vibration motor speed.
-    //analogWrite(D2, (int)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
+    analogWrite(D2, (int)mapFloat(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
 
    
     
