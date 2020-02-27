@@ -1,0 +1,13 @@
+Connecting to Wifi:
+	You need to use connect to a wifi network that needs only the name and the password. For example, a home wifi or a cafe wifi. UChicago
+	wifi doesn't work because it has 3rd-party authentication.
+
+Set WIFI_SSID variable to the name of the wifi network. 
+Set WIFI_PASSWORD variable to the password of the network.
+
+In Wifi.config() function, set the first variable to the IP address of your device, second variable to the DNS address of your network.
+Leave the 3rd variable as is.
+
+You will need the MindMonitor app sold on Google Play Store in order to run this app. It costs $15. I have the app and I will happily
+demo the project for you if you would like to. 
+
