@@ -109,6 +109,7 @@ void setup() {
   pinMode(D7, OUTPUT); //yellow led, alpha wave.
   pinMode(D6, OUTPUT); //red led, beta wave.
   pinMode(D5, OUTPUT); //green led, gamma wave.
+  pinMode(D0, OUTPUT); //Peltier A.
 
 
   
@@ -176,17 +177,17 @@ void loop() {
       bundle.dispatch("/muse/elements/beta_absolute", beta);
       bundle.dispatch("/muse/elements/gamma_absolute", gamma);
 
-      //Serial.println(currentWave);
-
     }
   } 
   
-    //this is the line that sets the vibration motor speed.
-    analogWrite(D2, (int)mapFloat(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
+    //Adjust the voltage that goes into the actuators. This uses PWM. 
+    analogWrite(D2, (int)map(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
+    analogWrite(PELTIER_A, 3*(int)map(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the peltier A.
+
+
     
     //Serial.println((String)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
  }
-
 
 
 
@@ -213,12 +214,4 @@ void setupWifi(){
     Serial.print("Local port: ");
     Serial.println(Udp.localPort());
     
-}
-
-
-
-
-float mapFloat(float x, float in_min, float in_max, float out_min, float out_max)
-{
- return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
