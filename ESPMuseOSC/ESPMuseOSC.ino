@@ -1,8 +1,8 @@
 #include <ArduinoOSC.h>
 
 //Settings
-#define WIFI_SSID "NETGEAR75"
-#define WIFI_PASSWORD "rusticgiant613"
+#define WIFI_SSID "Queer Wi for the Straight Fi"
+#define WIFI_PASSWORD "call1800steamer"
 #define LISTEN_PORT 5000
 
 #include <ESP8266WiFi.h>
@@ -55,6 +55,7 @@ int PELTIER_B = D1; //not yet sothered.
 
 
 float currentWave = da; // default value for the motitored wave is delta.
+boolean meditation;
 
 //declare the button.
 EasyButton button(D3);
@@ -72,22 +73,27 @@ void onPressed(){
   switch(idx%5){
     case 0:
       currentWave = da;
+      meditation = true;
       digitalWrite(LED_DELTA, HIGH); 
       break;
     case 1:
       currentWave = ta;
+      meditation = true;
       digitalWrite(LED_THETA, HIGH);
       break;
     case 2:
       currentWave = aa;
+      meditation = false;
       digitalWrite(LED_ALPHA, HIGH);
       break;
     case 3:
       currentWave = ba;
+      meditation = false;
       digitalWrite(LED_BETA, HIGH);
       break;
     case 4:
       currentWave = ga;
+      meditation = false;
       digitalWrite(LED_GAMMA, HIGH);
       break;
   }
@@ -181,9 +187,20 @@ void loop() {
   } 
   
     //Adjust the voltage that goes into the actuators. This uses PWM. 
-    analogWrite(D2, (int)map(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the motor.
-    analogWrite(PELTIER_A, 3*(int)map(currentWave, 0.0, 1.0, 0.0, 1023.0)); // sets PWM voltage that goes into the peltier A.
 
+    //if user's listening to meditation waves, i.e., delta and theta, map the PWM voltage in reverse order. More wave --> less voltage
+    if(meditation){
+      analogWrite(D2, (int)mapFloat(1-currentWave, 0.0, 1.0, 250.0, 1023.0)); // sets PWM voltage that goes into the motor.
+      analogWrite(PELTIER_A, 3*(int)mapFloat(1-currentWave, 0.0, 1.0, 700.0, 1023.0)); // sets PWM voltage that goes into the peltier A.
+
+    }
+    
+    //if user's listening to focus waves, i.e., beta and gamma, or alpha; map the PWM voltage in parallel order. More wave --> more voltage
+    else{
+  
+    analogWrite(D2, (int)mapFloat(currentWave, 0.0, 1.0, 250.0, 1023.0)); // sets PWM voltage that goes into the motor.
+    analogWrite(PELTIER_A, 3*(int)mapFloat(currentWave, 0.0, 1.0, 700.0, 1023.0)); // sets PWM voltage that goes into the peltier A.
+    }
 
     
     //Serial.println((String)mapFloat(dr, 0.0, 1.0, 0.0, 1023.0));
@@ -196,7 +213,7 @@ void setupWifi(){
   Serial.begin(115200);
   Serial.println("\n\nESP Booted.");
   
-  WiFi.config(IPAddress(192,168,0,123),IPAddress(192,168,0,2), IPAddress(255,255,255,0)); 
+  WiFi.config(IPAddress(192,168,43,30),IPAddress(192,168,43,1), IPAddress(255,255,255,0)); 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
 
   while (WiFi.status() != WL_CONNECTED) {
@@ -208,10 +225,15 @@ void setupWifi(){
     Serial.println("WiFi connected");
     Serial.println("IP address: ");
     Serial.println(WiFi.localIP());
-
     Serial.println("Starting UDP");
     Udp.begin(LISTEN_PORT);
     Serial.print("Local port: ");
     Serial.println(Udp.localPort());
     
+}
+
+
+float mapFloat(float x, float in_min, float in_max, float out_min, float out_max)
+{
+ return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
